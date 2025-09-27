@@ -1,4 +1,4 @@
-name: Build & Deploy HTML/CSS Site
+name: Deploy HTML/CSS Site
 
 on:
   push:
@@ -10,39 +10,25 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Step 1: Checkout code
+      # Step 1: Checkout repository
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      # Step 2: Setup Node.js
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: 18
-
-      # Step 3: Install dependencies
-      - name: Install dependencies
-        run: npm install
-
-      # Step 4: Build static site
-      - name: Build site
-        run: npm run build
-
-      # Step 5: Build Docker image with Nginx
+      # Step 2: Optional - Build Nginx Docker image (for testing)
       - name: Build Nginx Docker image
         run: |
           echo "FROM nginx:alpine
-          COPY ./dist /usr/share/nginx/html
+          COPY . /usr/share/nginx/html
           EXPOSE 80" > Dockerfile
           docker build -t cargo-service-nginx .
 
-      # Step 6: Run Nginx container
+      # Step 3: Optional - Run Nginx container
       - name: Run Nginx container
         run: docker run -d -p 8080:80 cargo-service-nginx
 
-      # Step 7: Deploy to GitHub Pages
+      # Step 4: Deploy to GitHub Pages
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./dist
+          publish_dir: ./   # Deploy all files in repo root
